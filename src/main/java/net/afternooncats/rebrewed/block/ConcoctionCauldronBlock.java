@@ -70,4 +70,8 @@ public class ConcoctionCauldronBlock extends BlockWithEntity {
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(LEVEL);
     }
+
+    public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state) {
+        return new ItemStack(Items.CAULDRON);
+    }
 }
