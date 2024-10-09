@@ -3,6 +3,7 @@
 	"package": "net.afternooncats.rebrewed.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
+		"BlockColorsMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
