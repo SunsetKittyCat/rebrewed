@@ -3,29 +3,36 @@ package net.afternooncats.rebrewed.block;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.ai.pathing.NavigationType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.PotionItem;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.function.BooleanBiFunction;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
 public class ConcoctionCauldronBlock extends BlockWithEntity {
     private static final VoxelShape RAYCAST_SHAPE = Block.createCuboidShape(2.0, 4.0, 2.0, 14.0, 16.0, 14.0);
     protected static final VoxelShape OUTLINE_SHAPE = VoxelShapes.combineAndSimplify(
-            VoxelShapes.fullCube(),
-            VoxelShapes.union(
-                    Block.createCuboidShape(0.0, 0.0, 4.0, 16.0, 3.0, 12.0),
-                    Block.createCuboidShape(4.0, 0.0, 0.0, 12.0, 3.0, 16.0),
-                    Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 3.0, 14.0),
-                    RAYCAST_SHAPE
-            ),
-            BooleanBiFunction.ONLY_FIRST
+        VoxelShapes.fullCube(),
+        VoxelShapes.union(
+            Block.createCuboidShape(0.0, 0.0, 4.0, 16.0, 3.0, 12.0),
+            Block.createCuboidShape(4.0, 0.0, 0.0, 12.0, 3.0, 16.0),
+            Block.createCuboidShape(2.0, 0.0, 2.0, 14.0, 3.0, 14.0),
+            RAYCAST_SHAPE),
+        BooleanBiFunction.ONLY_FIRST
     );
 
     @Override
@@ -37,8 +44,28 @@ public class ConcoctionCauldronBlock extends BlockWithEntity {
     public static final int MAX_LEVEL = 3;
     public static final IntProperty LEVEL = IntProperty.of("level", MIN_LEVEL, MAX_LEVEL);
 
-    public ConcoctionCauldronBlock(AbstractBlock.Settings settings) {
+    public ConcoctionCauldronBlock(Settings settings) {
         super(settings);
+    }
+
+    @Override
+    protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if (!(stack.getItem() instanceof PotionItem)) return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        PotionContentsComponent potionContentsComponent = stack.getComponents().get(DataComponentTypes.POTION_CONTENTS);
+
+        if (potionContentsComponent == null) return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        if (world.isClient) return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (!(blockEntity instanceof ConcoctionCauldronBlockEntity concoctionCauldronBlockEntity))
+            return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        concoctionCauldronBlockEntity.color = potionContentsComponent.getColor();
+        concoctionCauldronBlockEntity.markDirty();
+
+        return ItemActionResult.SUCCESS;
     }
 
     @Override
