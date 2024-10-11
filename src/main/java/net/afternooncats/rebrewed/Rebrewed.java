@@ -1,5 +1,6 @@
 package net.afternooncats.rebrewed;
 
+import net.afternooncats.rebrewed.fluid.CauldronFluids;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -11,5 +12,6 @@ public class Rebrewed implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		CauldronFluids.registerCauldronFluids();
 	}
 }
