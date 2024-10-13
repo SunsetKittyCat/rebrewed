@@ -5,8 +5,8 @@ import net.minecraft.block.Block;
 public class VanillaCauldronFluid extends AbstractCauldronFluid{
     private final Block vanillaCauldron;
 
-    public VanillaCauldronFluid(int color, FluidTemp tempType, boolean wet, Block vanillaCauldron) {
-        super(color, tempType, wet);
+    public VanillaCauldronFluid(int color, FluidTemp defTempType, boolean defWet, Block vanillaCauldron) {
+        super(color, defTempType, defWet);
         this.vanillaCauldron = vanillaCauldron;
     }
 

@@ -33,6 +33,10 @@ processResources {
 	}
 }
 
+loom {
+	accessWidenerPath = file("src/main/resources/rebrewed.accesswidener")
+}
+
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
 }

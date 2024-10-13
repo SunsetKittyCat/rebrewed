@@ -1,28 +1,25 @@
 package net.afternooncats.rebrewed.fluid;
 
 public class AbstractCauldronFluid {
-    private int color;
-    private FluidTemp tempType;
-    private boolean isWet;
-    //also vanilla fluids
-    //fluid properties:
-        //potion effects
+    private final int defColor;
+    private final FluidTemp defTempType;
+    private final boolean defIsWet;
 
-    public AbstractCauldronFluid(int color, FluidTemp tempType, boolean wet) {
-        this.color = color;
-        this.tempType = tempType;
-        this.isWet = wet;
+    public AbstractCauldronFluid(int defColor, FluidTemp defTempType, boolean defWet) {
+        this.defColor = defColor;
+        this.defTempType = defTempType;
+        this.defIsWet = defWet;
     }
 
     //The getters, theoretically dont need setters (for this anyway)
-    public int getColor() {
-        return color;
+    public int getDefColor() {
+        return defColor;
     }
-    public FluidTemp getTempType() {
-        return tempType;
+    public FluidTemp getDefTempType() {
+        return defTempType;
     }
     public boolean isWet() {
-        return isWet;
+        return defIsWet;
     }
 
     public enum FluidTemp {

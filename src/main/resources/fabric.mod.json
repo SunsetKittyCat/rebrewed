@@ -25,6 +25,7 @@
 	"mixins": [
 		"rebrewed.mixins.json"
 	],
+	"accessWidener" : "rebrewed.accesswidener",
 	"depends": {
 		"fabricloader": ">=0.16.5",
 		"minecraft": "~1.21",
