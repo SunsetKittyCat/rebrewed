@@ -2,10 +2,10 @@ package net.afternooncats.rebrewed.fluid;
 
 public class AbstractCauldronFluid {
     private final int defColor;
-    private final FluidTemp defTempType;
+    private final int defTempType;
     private final boolean defIsWet;
 
-    public AbstractCauldronFluid(int defColor, FluidTemp defTempType, boolean defWet) {
+    public AbstractCauldronFluid(int defColor, int defTempType, boolean defWet) {
         this.defColor = defColor;
         this.defTempType = defTempType;
         this.defIsWet = defWet;
@@ -15,16 +15,10 @@ public class AbstractCauldronFluid {
     public int getDefColor() {
         return defColor;
     }
-    public FluidTemp getDefTempType() {
+    public int getDefTempType() {
         return defTempType;
     }
     public boolean isWet() {
         return defIsWet;
-    }
-
-    public enum FluidTemp {
-        HOT,
-        NORMAL,
-        COLD
     }
 }

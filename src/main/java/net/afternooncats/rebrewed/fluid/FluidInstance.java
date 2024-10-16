@@ -1,6 +1,12 @@
 package net.afternooncats.rebrewed.fluid;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 
 import java.util.ArrayList;
@@ -8,11 +14,12 @@ import java.util.ArrayList;
 public class FluidInstance {
     private final AbstractCauldronFluid type;
     private int color;
-    private AbstractCauldronFluid.FluidTemp temp;
+    private int temp;
     private boolean isWet;
     private static final int maxQuantity = 3;
     private int quantity;
     private ArrayList<StatusEffectInstance> effects;
+    private NbtCompound nbt;
 
     public FluidInstance(AbstractCauldronFluid type, int amount) {
         this.type = type;
@@ -25,8 +32,20 @@ public class FluidInstance {
 
     public FluidInstance(AbstractCauldronFluid type, int amount, ArrayList<StatusEffectInstance> effectInstances) {
         this.type = type;
+        this.color = this.type.getDefColor();
+        this.temp = this.type.getDefTempType();
+        this.isWet = this.type.isWet();
         this.quantity = amount;
         this.effects = effectInstances;
+    }
+
+    public FluidInstance(AbstractCauldronFluid type, int color, int temp, boolean isWet, int amount, ArrayList<StatusEffectInstance> effects) {
+        this.type = type;
+        this.color = color;
+        this.temp = temp;
+        this.isWet = isWet;
+        this.quantity = amount;
+        this.effects = effects;
     }
 
     public int getLevel() {
@@ -70,22 +89,20 @@ public class FluidInstance {
     }
 
     //Temperature control
-    public AbstractCauldronFluid.FluidTemp getTemp() {
+    public int getTemp() {
         return temp;
     }
-    public void setTemp(AbstractCauldronFluid.FluidTemp newTemp) {
+    public void setTemp(int newTemp) {
         this.temp = newTemp;
     }
     public boolean cool() {
-        if (this.temp == AbstractCauldronFluid.FluidTemp.COLD) return false;
-        else if (this.temp == AbstractCauldronFluid.FluidTemp.NORMAL) this.temp = AbstractCauldronFluid.FluidTemp.COLD;
-        else this.temp = AbstractCauldronFluid.FluidTemp.NORMAL;
+        if (this.temp <= -1) return false;
+        this.temp--;
         return true;
     }
     public boolean heat() {
-        if (this.temp == AbstractCauldronFluid.FluidTemp.HOT) return false;
-        else if (this.temp == AbstractCauldronFluid.FluidTemp.NORMAL) this.temp = AbstractCauldronFluid.FluidTemp.HOT;
-        else this.temp = AbstractCauldronFluid.FluidTemp.NORMAL;
+        if (this.temp >= 1) return false;
+        this.temp++;
         return true;
     }
 
@@ -100,4 +117,48 @@ public class FluidInstance {
         this.effects.add(newEffect);
         this.updateColor();
     }
+
+    public NbtCompound writeNBT() {
+        NbtCompound nbt = new NbtCompound();
+        nbt.putString("type", CauldronFluids.CAULDRON_FLUID.getId(this.type).toString());
+        nbt.putInt("color", this.color);
+        nbt.putInt("temperature", this.temp);
+        nbt.putBoolean("isWet", this.isWet);
+        nbt.putInt("quantity", this.quantity);
+        NbtList effects = new NbtList();
+        for (StatusEffectInstance effect : this.effects) {
+            effects.add(effect.writeNbt());
+        }
+        nbt.put("effects", effects);
+        return nbt;
+    }
+
+    public static FluidInstance fromNBT(NbtCompound nbt) {
+        AbstractCauldronFluid type = CauldronFluids.BREWING_FLUID;
+        if (nbt.contains("type")) type = CauldronFluids.CAULDRON_FLUID.get(Identifier.of(nbt.getString("type")));
+
+        int color = type.getDefColor();
+        if (nbt.contains("color")) color = nbt.getInt("color");
+
+        int temp = type.getDefTempType();
+        if (nbt.contains("temperature")) temp = nbt.getInt("temperature");
+
+        boolean isWet = type.isWet();
+        if (nbt.contains("isWet")) isWet = nbt.getBoolean("isWet");
+
+        int quantity = 1;
+        if (nbt.contains("quantity")) quantity = nbt.getInt("quantity");
+
+        ArrayList<StatusEffectInstance> effects = new ArrayList<>();
+        if (nbt.contains("effects")) {
+            StatusEffectInstance[] tmpEffct;
+            NbtList list = (NbtList) nbt.get("effects");
+            for (net.minecraft.nbt.NbtElement nbtElement : list) {
+                effects.add(StatusEffectInstance.fromNbt((NbtCompound) nbtElement));
+            }
+        }
+        return new FluidInstance(type, color, temp, isWet, quantity, effects);
+    }
+
+
 }
