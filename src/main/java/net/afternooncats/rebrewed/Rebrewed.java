@@ -2,6 +2,7 @@ package net.afternooncats.rebrewed;
 
 import net.afternooncats.rebrewed.block.BlockEntityTypes;
 import net.afternooncats.rebrewed.block.Blocks;
+import net.afternooncats.rebrewed.fluid.CauldronFluids;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -15,5 +16,6 @@ public class Rebrewed implements ModInitializer {
 	public void onInitialize() {
 		Blocks.initialize();
 		BlockEntityTypes.initialize();
+		CauldronFluids.registerCauldronFluids();
 	}
 }
