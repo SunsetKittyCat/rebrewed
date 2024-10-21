@@ -2,14 +2,12 @@ package net.afternooncats.rebrewed.block;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.block.*;
+import net.minecraft.block.cauldron.CauldronBehavior;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.PotionItem;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.Hand;
@@ -34,6 +32,8 @@ public class ConcoctionCauldronBlock extends BlockWithEntity {
             RAYCAST_SHAPE),
         BooleanBiFunction.ONLY_FIRST
     );
+    //uhhh, im just gonna place this here...
+    public static CauldronBehavior.CauldronBehaviorMap behaviorMap = CauldronBehavior.createMap("concoction");
 
     @Override
     protected MapCodec<? extends ConcoctionCauldronBlock> getCodec() {
@@ -50,22 +50,8 @@ public class ConcoctionCauldronBlock extends BlockWithEntity {
 
     @Override
     protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!(stack.getItem() instanceof PotionItem)) return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-
-        PotionContentsComponent potionContentsComponent = stack.getComponents().get(DataComponentTypes.POTION_CONTENTS);
-
-        if (potionContentsComponent == null) return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-
-        if (world.isClient) return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (!(blockEntity instanceof ConcoctionCauldronBlockEntity concoctionCauldronBlockEntity))
-            return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-
-        concoctionCauldronBlockEntity.color = potionContentsComponent.getColor();
-        concoctionCauldronBlockEntity.markDirty();
-
-        return ItemActionResult.SUCCESS;
+        CauldronBehavior cauldronBehavior = (CauldronBehavior)behaviorMap.map().get(stack.getItem());
+        return cauldronBehavior.interact(state, world, pos, player, hand, stack);
     }
 
     @Override
