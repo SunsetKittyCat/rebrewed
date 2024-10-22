@@ -5,6 +5,7 @@ import net.afternooncats.rebrewed.fluid.FluidInstance;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.type.PotionContentsComponent;
@@ -52,6 +53,9 @@ public class ConcoctionCauldronBlockEntity extends BlockEntity {
         ConcoctionCauldronBlockEntity bE = world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON).get();
         PotionContentsComponent potionContentsComponent = bE.fluid.removePotion();
         bE.fluid.modifyLevel(-1);
+        if (bE.fluid.getLevel() <= 0) {
+            world.setBlockState(pos, Blocks.CAULDRON.getDefaultState());
+        }
         bE.markDirty();
         return potionContentsComponent;
     }
