@@ -1,5 +1,6 @@
 package net.afternooncats.rebrewed.mixin;
 
+import net.afternooncats.rebrewed.block.Blocks;
 import net.afternooncats.rebrewed.block.ConcoctionCauldronBlock;
 import net.afternooncats.rebrewed.block.ConcoctionCauldronBlockEntity;
 import net.minecraft.block.cauldron.CauldronBehavior;
@@ -77,6 +78,39 @@ public interface CauldronBehaviorMixin {
 
                     world.playSound(null, pos, SoundEvents.ITEM_BOTTLE_FILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
                     world.emitGameEvent(null, GameEvent.FLUID_PICKUP, pos);
+
+                }
+
+                return ItemActionResult.success(world.isClient);
+            } else {
+                return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+        });
+
+        Map<Item, CauldronBehavior> eMap = CauldronBehavior.EMPTY_CAULDRON_BEHAVIOR.map();
+        eMap.put(Items.POTION, (CauldronBehavior)(state, world, pos, player, hand, stack) -> {
+            PotionContentsComponent potionContentsComponent = stack.get(DataComponentTypes.POTION_CONTENTS);
+            world.setBlockState(pos, Blocks.CONCOCTION_CAULDRON.getDefaultState());
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (potionContentsComponent != null && blockEntity instanceof ConcoctionCauldronBlockEntity) {
+                if (!world.isClient) {
+                    //Add the fluid and update the level blockstate
+                    boolean didAdd = ConcoctionCauldronBlockEntity.addFluid(world, pos, potionContentsComponent);
+                    world.setBlockState(pos, state.with(ConcoctionCauldronBlock.LEVEL, ConcoctionCauldronBlockEntity.getFluidLevel(world, pos)));
+
+                    //if it didnt add, dont continue
+                    if (!didAdd) return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+                    //Item stuff
+                    Item item = stack.getItem();
+                    player.setStackInHand(hand, ItemUsage.exchangeStack(stack, player, new ItemStack(Items.GLASS_BOTTLE)));
+
+                    //Stat stuff
+                    player.incrementStat(Stats.USE_CAULDRON);
+                    player.incrementStat(Stats.USED.getOrCreateStat(item));
+
+                    world.playSound(null, pos, SoundEvents.ITEM_BOTTLE_EMPTY, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                    world.emitGameEvent(null, GameEvent.FLUID_PLACE, pos);
 
                 }
 
