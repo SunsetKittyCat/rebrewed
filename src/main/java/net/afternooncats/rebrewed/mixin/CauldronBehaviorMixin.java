@@ -65,7 +65,8 @@ public interface CauldronBehaviorMixin {
                 if (!world.isClient) {
                     //Get the potion and update the level blockstate
                     PotionContentsComponent contents = ConcoctionCauldronBlockEntity.removeFluid(world, pos);
-                    world.setBlockState(pos, state.with(ConcoctionCauldronBlock.LEVEL, ConcoctionCauldronBlockEntity.getFluidLevel(world, pos)));
+                    int cauldronLevel = ConcoctionCauldronBlockEntity.getFluidLevel(world, pos);
+                    world.setBlockState(pos, cauldronLevel == 0 ? net.minecraft.block.Blocks.CAULDRON.getDefaultState() : state.with(ConcoctionCauldronBlock.LEVEL, cauldronLevel));
 
                     //Item stuff
                     ItemStack potion = new ItemStack(Items.POTION);
@@ -90,7 +91,8 @@ public interface CauldronBehaviorMixin {
         Map<Item, CauldronBehavior> eMap = CauldronBehavior.EMPTY_CAULDRON_BEHAVIOR.map();
         eMap.put(Items.POTION, (CauldronBehavior)(state, world, pos, player, hand, stack) -> {
             PotionContentsComponent potionContentsComponent = stack.get(DataComponentTypes.POTION_CONTENTS);
-            world.setBlockState(pos, Blocks.CONCOCTION_CAULDRON.getDefaultState());
+            state = Blocks.CONCOCTION_CAULDRON.getDefaultState();
+            world.setBlockState(pos, state);
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (potionContentsComponent != null && blockEntity instanceof ConcoctionCauldronBlockEntity) {
                 if (!world.isClient) {
