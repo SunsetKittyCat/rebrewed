@@ -1,10 +1,12 @@
 {
-	"required": true,
-	"package": "net.afternooncats.rebrewed.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-	],
-	"injectors": {
-		"defaultRequire": 1
+  "required": true,
+  "package": "net.afternooncats.rebrewed.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BlockColorsMixin",
+    "CauldronBehaviorMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
 	}
 }

@@ -1,15 +1,16 @@
 package net.afternooncats.rebrewed.fluid;
 
-import com.mojang.serialization.MapCodec;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.potion.Potions;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class FluidInstance {
     private final AbstractCauldronFluid type;
@@ -76,16 +77,14 @@ public class FluidInstance {
     public int getColor() {
         return color;
     }
-    public void updateColor() {
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        for (StatusEffectInstance instance : effects) {
-            r += instance.getDuration() * ColorHelper.Argb.getRed(instance.getEffectType().value().getColor());
-            g += instance.getDuration() * ColorHelper.Argb.getGreen(instance.getEffectType().value().getColor());
-            b += instance.getDuration() * ColorHelper.Argb.getBlue(instance.getEffectType().value().getColor());
-        }
-        this.color = ColorHelper.Argb.getArgb(r/ effects.size(), g/ effects.size(), b/ effects.size());
+    private void addColor(int newColor) {
+        int level = this.getLevel();
+        int a = (ColorHelper.Argb.getAlpha(this.getColor()) * (level-1)) + ColorHelper.Argb.getAlpha(newColor);
+        int r = (ColorHelper.Argb.getRed(this.getColor()) * (level-1)) + ColorHelper.Argb.getRed(newColor);
+        int g = (ColorHelper.Argb.getGreen(this.getColor()) * (level-1)) + ColorHelper.Argb.getGreen(newColor);
+        int b = (ColorHelper.Argb.getBlue(this.getColor()) * (level-1)) + ColorHelper.Argb.getBlue(newColor);
+
+        this.color = ColorHelper.Argb.getArgb(a/level, r/level, g/level, b/level);
     }
 
     //Temperature control
@@ -113,9 +112,37 @@ public class FluidInstance {
         this.isWet = newWetness;
     }
 
-    public void addEffect(StatusEffectInstance newEffect) {
-        this.effects.add(newEffect);
-        this.updateColor();
+    public void addPotion(PotionContentsComponent newPotion) {
+        for (StatusEffectInstance effect : newPotion.getEffects()) {
+            this.addEffect(effect);
+        }
+        this.addColor(newPotion.getColor());
+    }
+    private void addEffect(StatusEffectInstance newEffect) {
+        boolean alreadyInCauldron = false;
+        for (StatusEffectInstance fluidEffect : this.effects) {
+            if (fluidEffect.getEffectType() == newEffect.getEffectType()) {
+                int amp = Math.max(fluidEffect.getAmplifier(), newEffect.getAmplifier());
+                int duration = (int) ((fluidEffect.getDuration() * Math.pow(1d/4, (amp - fluidEffect.getAmplifier()))) + (newEffect.getDuration() * Math.pow(1d/4, (amp - newEffect.getAmplifier()))));
+                fluidEffect = new StatusEffectInstance(fluidEffect.getEffectType(), duration, amp, fluidEffect.isAmbient(), fluidEffect.shouldShowParticles(), fluidEffect.shouldShowIcon());
+                alreadyInCauldron = true;
+                break;
+            }
+        }
+        if (!alreadyInCauldron) {
+            this.effects.add(newEffect);
+        }
+    }
+
+    public PotionContentsComponent removePotion() {
+        ArrayList<StatusEffectInstance> effects = new ArrayList<>();
+        for (StatusEffectInstance effect : this.effects) {
+            //add effect to potion list
+            effects.add(new StatusEffectInstance(effect.getEffectType(), effect.getDuration()/this.getLevel(), effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
+            //update effect in cauldron
+            effect = new StatusEffectInstance(effect.getEffectType(), (effect.getDuration()/this.getLevel())*(this.getLevel()+1), effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon());
+        }
+        return new PotionContentsComponent(Optional.of(Potions.WATER), Optional.of(this.color), effects);
     }
 
     public NbtCompound writeNBT() {
@@ -153,7 +180,7 @@ public class FluidInstance {
         if (nbt.contains("effects")) {
             StatusEffectInstance[] tmpEffct;
             NbtList list = (NbtList) nbt.get("effects");
-            for (net.minecraft.nbt.NbtElement nbtElement : list) {
+            for (NbtElement nbtElement : list) {
                 effects.add(StatusEffectInstance.fromNbt((NbtCompound) nbtElement));
             }
         }
