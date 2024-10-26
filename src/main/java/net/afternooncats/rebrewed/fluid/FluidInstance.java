@@ -125,9 +125,6 @@ public class FluidInstance {
         for (StatusEffectInstance fluidEffect : this.effects.getEffects()) {
             fluidEffects.add(fluidEffect);
 
-            if (alreadyInCauldron)
-                continue;
-
             for (StatusEffectInstance effect : newEffect.getEffects())
             {
                 if (effect.getEffectType() == fluidEffect.getEffectType())
