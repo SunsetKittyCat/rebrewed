@@ -149,20 +149,13 @@ public class FluidInstance {
         ArrayList<StatusEffectInstance> outputEffects = new ArrayList<>();
         ArrayList<StatusEffectInstance> cauldronEffects = new ArrayList<>();
 
-        for (StatusEffectInstance effect : this.effects.getEffects()) {
+        // TODO: Create solution for infinitely-diluting potions (minimum duration is 1)
+        this.effects.forEachEffect(effect -> {
             //add effect to potion list
-            int outputDuration = (int) (effect.getDuration() / this.getLevel());
-            if (effect.getDuration() == 1 && outputDuration == 0)
-                outputDuration = 1;
-            if (outputDuration > 0)
-                outputEffects.add(new StatusEffectInstance(effect.getEffectType(), outputDuration, effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
+            outputEffects.add(new StatusEffectInstance(effect.getEffectType(), Math.max((int) (effect.getDuration() / (double) this.getLevel()), 1), effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
             //update effect in cauldron
-            int cauldronDuration = (int) (effect.getDuration() * (this.getLevel() - 1d) / this.getLevel());
-            if (effect.getDuration() == 1 && cauldronDuration == 0)
-                cauldronDuration = 1;
-            if (cauldronDuration > 0)
-                cauldronEffects.add(new StatusEffectInstance(effect.getEffectType(), cauldronDuration, effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
-        }
+            cauldronEffects.add(new StatusEffectInstance(effect.getEffectType(), Math.max((int) (effect.getDuration() * (this.getLevel() - 1d) / this.getLevel()), 1), effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
+        });
 
         this.effects = new PotionContentsComponent(Optional.empty(), Optional.empty(), cauldronEffects);
 
