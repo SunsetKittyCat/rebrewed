@@ -7,7 +7,6 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.potion.Potions;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.ColorHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.Optional;
 
 public class FluidInstance {
     private final AbstractCauldronFluid type;
-    private int color;
     private int temp;
     private boolean isWet;
     private static final int maxQuantity = 3;
@@ -25,7 +23,6 @@ public class FluidInstance {
 
     public FluidInstance(AbstractCauldronFluid type, int amount) {
         this.type = type;
-        this.color = this.type.getDefColor();
         this.temp = this.type.getDefTempType();
         this.isWet = this.type.isWet();
         this.quantity = amount;
@@ -34,16 +31,14 @@ public class FluidInstance {
 
     public FluidInstance(AbstractCauldronFluid type, int amount, PotionContentsComponent effectInstances) {
         this.type = type;
-        this.color = this.type.getDefColor();
         this.temp = this.type.getDefTempType();
         this.isWet = this.type.isWet();
         this.quantity = amount;
         this.effects = effectInstances;
     }
 
-    public FluidInstance(AbstractCauldronFluid type, int color, int temp, boolean isWet, int amount, PotionContentsComponent effects) {
+    public FluidInstance(AbstractCauldronFluid type, int temp, boolean isWet, int amount, PotionContentsComponent effects) {
         this.type = type;
-        this.color = color;
         this.temp = temp;
         this.isWet = isWet;
         this.quantity = amount;
@@ -76,16 +71,7 @@ public class FluidInstance {
 
 
     public int getColor() {
-        return color;
-    }
-    private void addColor(int newColor) {
-        int level = this.getLevel();
-        int a = (ColorHelper.Argb.getAlpha(this.getColor()) * (level-1)) + ColorHelper.Argb.getAlpha(newColor);
-        int r = (ColorHelper.Argb.getRed(this.getColor()) * (level-1)) + ColorHelper.Argb.getRed(newColor);
-        int g = (ColorHelper.Argb.getGreen(this.getColor()) * (level-1)) + ColorHelper.Argb.getGreen(newColor);
-        int b = (ColorHelper.Argb.getBlue(this.getColor()) * (level-1)) + ColorHelper.Argb.getBlue(newColor);
-
-        this.color = ColorHelper.Argb.getArgb(a/level, r/level, g/level, b/level);
+        return this.effects.getColor();
     }
 
     //Temperature control
@@ -115,7 +101,6 @@ public class FluidInstance {
 
     public void addPotion(PotionContentsComponent newPotion) {
         this.addEffect(newPotion);
-        this.addColor(newPotion.getColor());
     }
     private void addEffect(PotionContentsComponent newEffect) {
         boolean alreadyInCauldron = false;
@@ -159,13 +144,12 @@ public class FluidInstance {
 
         this.effects = new PotionContentsComponent(Optional.empty(), Optional.empty(), cauldronEffects);
 
-        return new PotionContentsComponent(Optional.of(Potions.WATER), Optional.of(this.color), outputEffects);
+        return new PotionContentsComponent(Optional.of(Potions.WATER), Optional.empty(), outputEffects);
     }
 
     public NbtCompound writeNBT() {
         NbtCompound nbt = new NbtCompound();
         nbt.putString("type", CauldronFluids.CAULDRON_FLUID.getId(this.type).toString());
-        nbt.putInt("color", this.color);
         nbt.putInt("temperature", this.temp);
         nbt.putBoolean("isWet", this.isWet);
         nbt.putInt("quantity", this.quantity);
@@ -178,9 +162,6 @@ public class FluidInstance {
     public static FluidInstance fromNBT(NbtCompound nbt) {
         AbstractCauldronFluid type = CauldronFluids.BREWING_FLUID;
         if (nbt.contains("type")) type = CauldronFluids.CAULDRON_FLUID.get(Identifier.of(nbt.getString("type")));
-
-        int color = type.getDefColor();
-        if (nbt.contains("color")) color = nbt.getInt("color");
 
         int temp = type.getDefTempType();
         if (nbt.contains("temperature")) temp = nbt.getInt("temperature");
@@ -195,7 +176,7 @@ public class FluidInstance {
         if (nbt.contains("effects", NbtElement.LIST_TYPE))
             ((NbtList) nbt.get("effects")).forEach(nbtElement -> effects.add(StatusEffectInstance.fromNbt((NbtCompound) nbtElement)));
 
-        return new FluidInstance(type, color, temp, isWet, quantity, new PotionContentsComponent(Optional.empty(), Optional.empty(), effects));
+        return new FluidInstance(type, temp, isWet, quantity, new PotionContentsComponent(Optional.empty(), Optional.empty(), effects));
     }
 
 
