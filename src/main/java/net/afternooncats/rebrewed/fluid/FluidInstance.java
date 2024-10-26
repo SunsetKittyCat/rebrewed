@@ -154,9 +154,17 @@ public class FluidInstance {
 
         for (StatusEffectInstance effect : this.effects.getEffects()) {
             //add effect to potion list
-            outputEffects.add(new StatusEffectInstance(effect.getEffectType(), effect.getDuration()/this.getLevel(), effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
+            int outputDuration = (int) (effect.getDuration() / this.getLevel());
+            if (effect.getDuration() == 1 && outputDuration == 0)
+                outputDuration = 1;
+            if (outputDuration > 0)
+                outputEffects.add(new StatusEffectInstance(effect.getEffectType(), outputDuration, effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
             //update effect in cauldron
-            cauldronEffects.add(new StatusEffectInstance(effect.getEffectType(), (effect.getDuration()/this.getLevel())*(this.getLevel()+1), effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
+            int cauldronDuration = (int) (effect.getDuration() * (this.getLevel() - 1d) / this.getLevel());
+            if (effect.getDuration() == 1 && cauldronDuration == 0)
+                cauldronDuration = 1;
+            if (cauldronDuration > 0)
+                cauldronEffects.add(new StatusEffectInstance(effect.getEffectType(), cauldronDuration, effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
         }
 
         this.effects = new PotionContentsComponent(Optional.empty(), Optional.empty(), cauldronEffects);
