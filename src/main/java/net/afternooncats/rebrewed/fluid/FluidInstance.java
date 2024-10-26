@@ -19,7 +19,6 @@ public class FluidInstance {
     private static final int maxQuantity = 3;
     private int quantity;
     private PotionContentsComponent effects;
-    private NbtCompound nbt;
 
     public FluidInstance(AbstractCauldronFluid type, int amount) {
         this.type = type;
@@ -100,32 +99,40 @@ public class FluidInstance {
     }
 
     public void addPotion(PotionContentsComponent newPotion) {
-        this.addEffect(newPotion);
-    }
-    private void addEffect(PotionContentsComponent newEffect) {
-        boolean alreadyInCauldron = false;
-
         ArrayList<StatusEffectInstance> fluidEffects = new ArrayList<>();
 
-        for (StatusEffectInstance fluidEffect : this.effects.getEffects()) {
-            fluidEffects.add(fluidEffect);
+        newPotion.forEachEffect(potionEffect -> {
+            boolean inCauldron = false;
 
-            for (StatusEffectInstance effect : newEffect.getEffects())
-            {
-                if (effect.getEffectType() == fluidEffect.getEffectType())
+            for (StatusEffectInstance cauldronEffect : this.effects.getEffects()) {
+                if (potionEffect.getEffectType() == cauldronEffect.getEffectType())
                 {
-                    int amp = Math.max(fluidEffect.getAmplifier(), effect.getAmplifier());
-                    int duration = (int) ((fluidEffect.getDuration() * Math.pow(1d/4, (amp - fluidEffect.getAmplifier()))) + (effect.getDuration() * Math.pow(1d/4, (amp - effect.getAmplifier()))));
-                    fluidEffects.removeLast();
-                    fluidEffects.add(new StatusEffectInstance(fluidEffect.getEffectType(), duration, amp, fluidEffect.isAmbient(), fluidEffect.shouldShowParticles(), fluidEffect.shouldShowIcon()));
-                    alreadyInCauldron = true;
+                    int amp = Math.max(cauldronEffect.getAmplifier(), potionEffect.getAmplifier());
+                    int duration = (int) ((cauldronEffect.getDuration() * Math.pow(1d/4, (amp - cauldronEffect.getAmplifier()))) + (potionEffect.getDuration() * Math.pow(1d/4, (amp - potionEffect.getAmplifier()))));
+                    fluidEffects.add(new StatusEffectInstance(cauldronEffect.getEffectType(), duration, amp, cauldronEffect.isAmbient(), cauldronEffect.shouldShowParticles(), cauldronEffect.shouldShowIcon()));
+                    inCauldron = true;
                     break;
                 }
             }
-        }
 
-        if (!alreadyInCauldron)
-            newEffect.forEachEffect(fluidEffects::add);
+            if (!inCauldron)
+                fluidEffects.add(potionEffect);
+        });
+
+        this.effects.forEachEffect(cauldronEffect -> {
+            boolean inPotion = false;
+
+            for (StatusEffectInstance potionEffect : newPotion.getEffects()) {
+                if (cauldronEffect.getEffectType() == potionEffect.getEffectType())
+                {
+                    inPotion = true;
+                    break;
+                }
+            }
+
+            if (!inPotion)
+                fluidEffects.add(cauldronEffect);
+        });
 
         this.effects = new PotionContentsComponent(Optional.empty(), Optional.empty(), fluidEffects);
     }
