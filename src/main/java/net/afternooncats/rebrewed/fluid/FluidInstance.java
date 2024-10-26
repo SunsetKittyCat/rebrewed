@@ -130,7 +130,7 @@ public class FluidInstance {
 
             for (StatusEffectInstance effect : newEffect.getEffects())
             {
-                if (effect == fluidEffect)
+                if (effect.getEffectType() == fluidEffect.getEffectType())
                 {
                     int amp = Math.max(fluidEffect.getAmplifier(), effect.getAmplifier());
                     int duration = (int) ((fluidEffect.getDuration() * Math.pow(1d/4, (amp - fluidEffect.getAmplifier()))) + (effect.getDuration() * Math.pow(1d/4, (amp - effect.getAmplifier()))));
