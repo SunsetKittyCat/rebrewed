@@ -1,0 +1,8 @@
+{
+  "block.rebrewed.concoction_cauldron": "Concoction Cauldron",
+
+  "item.rebrewed.lingering_potion.effect.composite": "Lingering Composite Potion",
+  "item.rebrewed.potion.effect.composite": "Composite Potion",
+  "item.rebrewed.splash_potion.effect.composite": "Splash Composite Potion",
+  "item.rebrewed.tipped_arrow.effect.composite": "Arrow of Composite Effects"
+}
