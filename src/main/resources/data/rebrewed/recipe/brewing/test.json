@@ -1,0 +1,11 @@
+{
+  "type": "rebrewed:brewing",
+  "ingredient": {
+    "item": "minecraft:nether_star"
+  },
+  "requiresHeating": true,
+  "result": {
+    "id": "minecraft:potion",
+    "count": 1
+  }
+}
