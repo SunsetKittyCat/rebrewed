@@ -1,11 +1,11 @@
 package net.afternooncats.rebrewed.fluid;
 
+import net.afternooncats.rebrewed.potion.Potions;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.potion.Potions;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -151,7 +151,7 @@ public class FluidInstance {
 
         this.effects = new PotionContentsComponent(Optional.empty(), Optional.empty(), cauldronEffects);
 
-        return new PotionContentsComponent(Optional.of(Potions.WATER), Optional.empty(), outputEffects);
+        return new PotionContentsComponent(Optional.of(Potions.COMPOSITE), Optional.empty(), outputEffects);
     }
 
     public NbtCompound writeNBT() {

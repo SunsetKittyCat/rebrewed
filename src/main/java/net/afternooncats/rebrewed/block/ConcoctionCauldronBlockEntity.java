@@ -2,6 +2,7 @@ package net.afternooncats.rebrewed.block;
 
 import net.afternooncats.rebrewed.fluid.CauldronFluids;
 import net.afternooncats.rebrewed.fluid.FluidInstance;
+import net.afternooncats.rebrewed.potion.Potions;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -13,7 +14,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.potion.Potions;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -49,7 +49,7 @@ public class ConcoctionCauldronBlockEntity extends BlockEntity {
 
     //returns just water if theres a problem
     public static PotionContentsComponent removeFluid(World world, BlockPos pos) {
-        if(world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON).isEmpty()) return new PotionContentsComponent(Potions.WATER);
+        if(world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON).isEmpty()) return new PotionContentsComponent(Potions.COMPOSITE);
         ConcoctionCauldronBlockEntity bE = world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON).get();
         PotionContentsComponent potionContentsComponent = bE.fluid.removePotion();
         bE.fluid.modifyLevel(-1);
