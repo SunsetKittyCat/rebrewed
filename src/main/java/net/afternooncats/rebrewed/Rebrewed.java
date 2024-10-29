@@ -3,6 +3,7 @@ package net.afternooncats.rebrewed;
 import net.afternooncats.rebrewed.block.BlockEntityTypes;
 import net.afternooncats.rebrewed.block.Blocks;
 import net.afternooncats.rebrewed.fluid.CauldronFluids;
+import net.afternooncats.rebrewed.potion.Potions;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -17,5 +18,6 @@ public class Rebrewed implements ModInitializer {
 		Blocks.initialize();
 		BlockEntityTypes.initialize();
 		CauldronFluids.registerCauldronFluids();
+		Potions.initialize();
 	}
 }
