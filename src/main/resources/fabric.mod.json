@@ -3,7 +3,7 @@
 	"id": "rebrewed",
 	"version": "${version}",
 	"name": "Rebrewed",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Modifying potion making 1 step at a time.\nCurrently: Potion Mixing!",
 	"authors": [
 		"PaulMarmet",
 		"SunsetCat"
@@ -27,7 +27,7 @@
 	],
 	"accessWidener" : "rebrewed.accesswidener",
 	"depends": {
-		"fabricloader": ">=0.16.5",
+		"fabricloader": ">=0.16.0",
 		"minecraft": "~1.21",
 		"java": ">=21",
 		"fabric-api": "*"

@@ -11,7 +11,7 @@ import net.minecraft.util.Identifier;
 
 public class Potions {
     public static final RegistryEntry<Potion> COMPOSITE = register("composite", new Potion());
-    public static final RegistryEntry<Potion> REJUVENATION = register("rejuvenation",
+    /*public static final RegistryEntry<Potion> REJUVENATION = register("rejuvenation",
             new Potion("regeneration", new StatusEffectInstance[]{
                     new StatusEffectInstance(StatusEffects.REGENERATION, 400)
             })); //Ghast Tear
@@ -114,7 +114,7 @@ public class Potions {
                     //also warping
             })); //Ender Pearl
     //add Chorus Fruit Warping
-
+    */
 
 
     private static RegistryEntry<Potion> register(String name, Potion potion) {
