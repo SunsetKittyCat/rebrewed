@@ -6,6 +6,7 @@ import net.afternooncats.rebrewed.recipe.RecipeHelper;
 import net.minecraft.block.*;
 import net.minecraft.block.cauldron.CauldronBehavior;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -53,8 +54,8 @@ public class ConcoctionCauldronBlock extends BlockWithEntity {
     @Override
     protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (RecipeHelper.canBrewStack(world, stack)) {
-            ItemStack brewedStack = RecipeHelper.brewItemStack(world, stack);
-            Rebrewed.LOGGER.info("This item can be brewed into " + brewedStack);
+            PotionContentsComponent potion = RecipeHelper.brewItemStack(world, stack);
+            Rebrewed.LOGGER.info("This item can be brewed into " + potion.getEffects());
             return ItemActionResult.success(world.isClient());
         }
         CauldronBehavior cauldronBehavior = (CauldronBehavior)behaviorMap.map().get(stack.getItem());

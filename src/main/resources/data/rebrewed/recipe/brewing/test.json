@@ -3,7 +3,9 @@
   "ingredient": {
     "item": "minecraft:nether_star"
   },
+  "fluid": "any",
   "requiresHeating": true,
+  "potion": "minecraft:strength",
   "result": {
     "id": "minecraft:potion",
     "count": 1

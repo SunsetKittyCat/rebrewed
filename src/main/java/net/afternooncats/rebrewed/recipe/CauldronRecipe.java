@@ -12,12 +12,16 @@ import net.minecraft.world.World;
 public abstract class CauldronRecipe implements Recipe<SingleStackRecipeInput> {
     protected final RecipeType<?> type;
     protected final Ingredient ingredient;
+    protected final String fluid;
     protected final Boolean requiresHeating;
+    protected final String potionResult;
     protected final ItemStack result;
 
-    public CauldronRecipe(RecipeType<? extends CauldronRecipe> type, Ingredient ingredient, Boolean requiresHeating, ItemStack result) {
+    public CauldronRecipe(RecipeType<? extends CauldronRecipe> type, Ingredient ingredient, String fluid, Boolean requiresHeating, String potionResult, ItemStack result) {
         this.type = type;
+        this.fluid = fluid;
         this.requiresHeating = requiresHeating;
+        this.potionResult = potionResult;
         this.result = result;
         this.ingredient = ingredient;
     }
@@ -55,7 +59,9 @@ public abstract class CauldronRecipe implements Recipe<SingleStackRecipeInput> {
     public Ingredient getIngredient() {
         return this.ingredient;
     }
+    public String getFluid() { return this.fluid; }
     public boolean getHeatReqs() { return this.requiresHeating; }
+    public String getPotion() { return this.potionResult; }
     public ItemStack getResultI() {
         return this.result;
     }
@@ -66,7 +72,7 @@ public abstract class CauldronRecipe implements Recipe<SingleStackRecipeInput> {
     }
 
     public interface RecipeFactory<T extends CauldronRecipe> {
-        T create(Ingredient ingredient, boolean requiresHeating, ItemStack result);
+        T create(Ingredient ingredient, String fluidReqs, boolean requiresHeating, String potion, ItemStack result);
 
     }
 }

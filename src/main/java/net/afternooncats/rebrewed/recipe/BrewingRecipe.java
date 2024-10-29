@@ -7,12 +7,12 @@ import net.minecraft.recipe.RecipeType;
 
 public class BrewingRecipe extends CauldronRecipe {
 
-    public BrewingRecipe(RecipeType<? extends BrewingRecipe> type, Ingredient ingredient, boolean requiresHeating, ItemStack result) {
-        super(type, ingredient, requiresHeating, result);
+    public BrewingRecipe(RecipeType<? extends BrewingRecipe> type, Ingredient ingredient, String fluid, boolean requiresHeating, String potionResult, ItemStack result) {
+        super(type, ingredient, fluid, requiresHeating, potionResult, result);
     }
 
-    public BrewingRecipe(Ingredient ingredient, boolean requiresHeating, ItemStack result) {
-        super(Type.INSTANCE, ingredient, requiresHeating, result);
+    public BrewingRecipe(Ingredient ingredient, String fluid, boolean requiresHeating, String potionResult, ItemStack result) {
+        super(Type.INSTANCE, ingredient, fluid, requiresHeating, potionResult, result);
     }
 
     @Override
