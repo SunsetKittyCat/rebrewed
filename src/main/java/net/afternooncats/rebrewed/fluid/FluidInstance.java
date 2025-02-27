@@ -1,189 +1,200 @@
 package net.afternooncats.rebrewed.fluid;
 
 import net.afternooncats.rebrewed.potion.Potions;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.minecraft.component.ComponentChanges;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.potion.Potion;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ColorHelper;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class FluidInstance {
-    private final AbstractCauldronFluid type;
-    private int temp;
-    private boolean isWet;
     private static final int maxQuantity = 3;
-    private int quantity;
-    private PotionContentsComponent effects;
+    private FluidVariant fluid;
 
-    public FluidInstance(AbstractCauldronFluid type, int amount) {
-        this.type = type;
-        this.temp = this.type.getDefTempType();
-        this.isWet = this.type.isWet();
-        this.quantity = amount;
-        this.effects = new PotionContentsComponent(Optional.empty(), Optional.empty(), List.of());
+    public FluidInstance(Fluid fluid, int amount) {
+        this(fluid, amount, new ArrayList<>());
     }
 
-    public FluidInstance(AbstractCauldronFluid type, int amount, PotionContentsComponent effectInstances) {
-        this.type = type;
-        this.temp = this.type.getDefTempType();
-        this.isWet = this.type.isWet();
-        this.quantity = amount;
-        this.effects = effectInstances;
+    public FluidInstance(Fluid fluid, int amount, ArrayList<StatusEffectInstance> effects) {
+        this.fluid = buildFluidVariant(fluid,
+                fluid.getDefaultState().getBlockState().getBlock().getDefaultMapColor().color,
+                amount,
+                effects);
     }
 
-    public FluidInstance(AbstractCauldronFluid type, int temp, boolean isWet, int amount, PotionContentsComponent effects) {
-        this.type = type;
-        this.temp = temp;
-        this.isWet = isWet;
-        this.quantity = amount;
-        this.effects = effects;
+    public static FluidVariant buildFluidVariant(Fluid fluid, int quantity, int color, ArrayList<StatusEffectInstance> effects) {
+        return buildFluidVariant(fluid, quantity, Potions.COMPOSITE, color, effects);
+    }
+    public static FluidVariant buildFluidVariant(Fluid fluid, int quantity, RegistryEntry<Potion> potion, int color, ArrayList<StatusEffectInstance> effects) {
+        ComponentChanges.Builder comp = ComponentChanges.builder();
+        //i just need a place to store the int for the quantity, "max stack size" is close enough
+        comp.add(DataComponentTypes.MAX_STACK_SIZE, quantity);
+        //stg these components are probably great... but...
+        comp.add(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(
+                Optional.of(potion),
+                Optional.of(color),
+                effects));
+        return FluidVariant.of(fluid, comp.build());
     }
 
-    public int getLevel() {
-        return quantity;
+    public FluidVariant getFluidVar() {
+        return this.fluid;
     }
-    public boolean setLevel(int newLevel) {
+    public Fluid getFluid() {
+        return this.fluid.getFluid();
+    } //maybe potentially add a setType but not rn
+    public ComponentChanges getComponents() {
+        return this.fluid.getComponents();
+    }
+
+    public int getQuantity() {
+        return !this.getComponents().isEmpty() && this.getComponents().get(DataComponentTypes.MAX_STACK_SIZE).isPresent() ? this.getComponents().get(DataComponentTypes.MAX_STACK_SIZE).get() : 1;
+    }
+    public int getColor() {
+        return !this.getComponents().isEmpty() && this.getComponents().get(DataComponentTypes.POTION_CONTENTS).isPresent() ? this.getComponents().get(DataComponentTypes.POTION_CONTENTS).get().getColor() : this.getFluid().getDefaultState().getBlockState().getBlock().getDefaultMapColor().color;
+    }
+    public ArrayList<StatusEffectInstance> getEffects() {
+        if (this.getComponents().isEmpty() || this.getComponents().get(DataComponentTypes.POTION_CONTENTS).isEmpty()) return new ArrayList<>();
+        Iterable<StatusEffectInstance> statuses = this.getComponents().get(DataComponentTypes.POTION_CONTENTS).get().getEffects();
+        ArrayList<StatusEffectInstance> effects = new ArrayList<>();
+        statuses.forEach(effects::add);
+        return effects;
+    }
+
+    public void setColor(int newColor) {
+        this.fluid = buildFluidVariant(this.getFluid(), this.getQuantity(), newColor, this.getEffects());
+    }
+    public boolean setQuantity(int newLevel) {
         if((newLevel < 0) || (maxQuantity < newLevel)) {
             return false;
         }
-        this.quantity = newLevel;
+        this.fluid = buildFluidVariant(this.getFluid(), newLevel, this.getColor(), this.getEffects());
         return true;
+    }
+    public void setEffects(ArrayList<StatusEffectInstance> effects) {
+        this.fluid = buildFluidVariant(this.getFluid(), this.getQuantity(), this.getColor(), effects);
+    }
+
+    private void addColor(int newColor) {
+        int level = this.getQuantity();
+        int a = (ColorHelper.Argb.getAlpha(this.getColor()) * (level-1)) + ColorHelper.Argb.getAlpha(newColor);
+        int r = (ColorHelper.Argb.getRed(this.getColor()) * (level-1)) + ColorHelper.Argb.getRed(newColor);
+        int g = (ColorHelper.Argb.getGreen(this.getColor()) * (level-1)) + ColorHelper.Argb.getGreen(newColor);
+        int b = (ColorHelper.Argb.getBlue(this.getColor()) * (level-1)) + ColorHelper.Argb.getBlue(newColor);
+
+        this.setColor(ColorHelper.Argb.getArgb(a/level, r/level, g/level, b/level));
     }
     public boolean modifyLevel(int amount) {
-        int newLevel = this.quantity + amount;
+        int newLevel = this.getQuantity() + amount;
         if((newLevel < 0) || (maxQuantity < newLevel)) {
             return false;
         }
-        this.quantity = newLevel;
+        this.fluid = buildFluidVariant(this.getFluid(), newLevel, this.getColor(), this.getEffects());
         return true;
-    }
-
-    public AbstractCauldronFluid getType() {
-        return type;
-    }
-    //maybe potentially add a setType but not right now.
-
-
-    public int getColor() {
-        return this.effects.getColor();
-    }
-
-    //Temperature control
-    public int getTemp() {
-        return temp;
-    }
-    public void setTemp(int newTemp) {
-        this.temp = newTemp;
-    }
-    public boolean cool() {
-        if (this.temp <= -1) return false;
-        this.temp--;
-        return true;
-    }
-    public boolean heat() {
-        if (this.temp >= 1) return false;
-        this.temp++;
-        return true;
-    }
-
-    public boolean isWet() {
-        return isWet;
-    }
-    public void setWet(boolean newWetness) {
-        this.isWet = newWetness;
     }
 
     public void addPotion(PotionContentsComponent newPotion) {
-        ArrayList<StatusEffectInstance> fluidEffects = new ArrayList<>();
-
-        newPotion.forEachEffect(potionEffect -> {
-            boolean inCauldron = false;
-
-            for (StatusEffectInstance cauldronEffect : this.effects.getEffects()) {
-                if (potionEffect.getEffectType() == cauldronEffect.getEffectType())
-                {
-                    int amp = Math.max(cauldronEffect.getAmplifier(), potionEffect.getAmplifier());
-                    int duration = (int) ((cauldronEffect.getDuration() * Math.pow(1d/4, (amp - cauldronEffect.getAmplifier()))) + (potionEffect.getDuration() * Math.pow(1d/4, (amp - potionEffect.getAmplifier()))));
-                    fluidEffects.add(new StatusEffectInstance(cauldronEffect.getEffectType(), duration, amp, cauldronEffect.isAmbient(), cauldronEffect.shouldShowParticles(), cauldronEffect.shouldShowIcon()));
-                    inCauldron = true;
+//        for (StatusEffectInstance effect : newPotion.getEffects()) {
+//            this.addEffect(effect);
+//        }
+        this.addEffects((StatusEffectInstance) newPotion.getEffects());
+        this.addColor(newPotion.getColor());
+    }
+    private void addEffect(StatusEffectInstance newEffect) {
+        ArrayList<StatusEffectInstance> currentEffects = this.getEffects();
+        boolean alreadyInCauldron = false;
+        for (StatusEffectInstance fluidEffect : currentEffects) {
+            if (fluidEffect.getEffectType() == newEffect.getEffectType()) {
+                int amp = Math.max(fluidEffect.getAmplifier(), newEffect.getAmplifier());
+                int duration = (int) ((fluidEffect.getDuration() * Math.pow(1d / 4, (amp - fluidEffect.getAmplifier()))) + (newEffect.getDuration() * Math.pow(1d / 4, (amp - newEffect.getAmplifier()))));
+                fluidEffect = new StatusEffectInstance(fluidEffect.getEffectType(), duration, amp, fluidEffect.isAmbient(), fluidEffect.shouldShowParticles(), fluidEffect.shouldShowIcon());
+                alreadyInCauldron = true;
+                break;
+            }
+        }
+        if (!alreadyInCauldron) {
+            currentEffects.add(newEffect);
+        }
+        this.setEffects(currentEffects);
+    }
+    private void addEffects(StatusEffectInstance... newEffects) {
+        ArrayList<StatusEffectInstance> currentEffects = this.getEffects();
+        for (StatusEffectInstance newEffect : newEffects) {
+            boolean alreadyInCauldron = false;
+            for (StatusEffectInstance fluidEffect : currentEffects) {
+                if (fluidEffect.getEffectType() == newEffect.getEffectType()) {
+                    int amp = Math.max(fluidEffect.getAmplifier(), newEffect.getAmplifier());
+                    int duration = (int) ((fluidEffect.getDuration() * Math.pow(1d / 4, (amp - fluidEffect.getAmplifier()))) + (newEffect.getDuration() * Math.pow(1d / 4, (amp - newEffect.getAmplifier()))));
+                    fluidEffect = new StatusEffectInstance(fluidEffect.getEffectType(), duration, amp, fluidEffect.isAmbient(), fluidEffect.shouldShowParticles(), fluidEffect.shouldShowIcon());
+                    alreadyInCauldron = true;
                     break;
                 }
             }
-
-            if (!inCauldron)
-                fluidEffects.add(potionEffect);
-        });
-
-        this.effects.forEachEffect(cauldronEffect -> {
-            boolean inPotion = false;
-
-            for (StatusEffectInstance potionEffect : newPotion.getEffects()) {
-                if (cauldronEffect.getEffectType() == potionEffect.getEffectType())
-                {
-                    inPotion = true;
-                    break;
-                }
+            if (!alreadyInCauldron) {
+                currentEffects.add(newEffect);
             }
-
-            if (!inPotion)
-                fluidEffects.add(cauldronEffect);
-        });
-
-        this.effects = new PotionContentsComponent(Optional.empty(), Optional.empty(), fluidEffects);
+        }
+        this.setEffects(currentEffects);
     }
 
     public PotionContentsComponent removePotion() {
-        ArrayList<StatusEffectInstance> outputEffects = new ArrayList<>();
-        ArrayList<StatusEffectInstance> cauldronEffects = new ArrayList<>();
-
-        // TODO: Create solution for infinitely-diluting potions (minimum duration is 1)
-        this.effects.forEachEffect(effect -> {
+        ArrayList<StatusEffectInstance> effects = new ArrayList<>();
+        ArrayList<StatusEffectInstance> currentEffects = this.getEffects();
+        for (StatusEffectInstance effect : currentEffects) {
             //add effect to potion list
-            outputEffects.add(new StatusEffectInstance(effect.getEffectType(), Math.max((int) (effect.getDuration() / (double) this.getLevel()), 1), effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
+            effects.add(new StatusEffectInstance(effect.getEffectType(), effect.getDuration()/this.getQuantity(), effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
             //update effect in cauldron
-            cauldronEffects.add(new StatusEffectInstance(effect.getEffectType(), Math.max((int) (effect.getDuration() * (this.getLevel() - 1d) / this.getLevel()), 1), effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon()));
-        });
-
-        this.effects = new PotionContentsComponent(Optional.empty(), Optional.empty(), cauldronEffects);
-
-        return new PotionContentsComponent(Optional.of(Potions.COMPOSITE), Optional.empty(), outputEffects);
+            effect = new StatusEffectInstance(effect.getEffectType(), (effect.getDuration()/this.getQuantity())*(this.getQuantity()+1), effect.getAmplifier(), effect.isAmbient(), effect.shouldShowParticles(), effect.shouldShowIcon());
+        }
+        this.setEffects(currentEffects);
+        return new PotionContentsComponent(Optional.of(Potions.COMPOSITE), Optional.of(this.getColor()), effects);
     }
 
-    public NbtCompound writeNBT() {
+    public NbtCompound writeNBT(RegistryWrapper.WrapperLookup registryLookup) {
         NbtCompound nbt = new NbtCompound();
-        nbt.putString("type", CauldronFluids.CAULDRON_FLUID.getId(this.type).toString());
-        nbt.putInt("temperature", this.temp);
-        nbt.putBoolean("isWet", this.isWet);
-        nbt.putInt("quantity", this.quantity);
+        return writeNBT(nbt, registryLookup);
+    }
+    public NbtCompound writeNBT(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        nbt.putString("fluid", this.fluid.getFluid().toString());
+        ComponentChanges.CODEC.encode(this.getComponents(), registryLookup.getOps(NbtOps.INSTANCE), nbt);
+        nbt.putInt("quantity", this.getQuantity());
         NbtList effects = new NbtList();
-        this.effects.forEachEffect(effect -> effects.add(effect.writeNbt()));
+        for (StatusEffectInstance effect : this.getEffects()) {
+            effects.add(effect.writeNbt());
+        }
         nbt.put("effects", effects);
         return nbt;
     }
 
-    public static FluidInstance fromNBT(NbtCompound nbt) {
-        AbstractCauldronFluid type = CauldronFluids.BREWING_FLUID;
-        if (nbt.contains("type")) type = CauldronFluids.CAULDRON_FLUID.get(Identifier.of(nbt.getString("type")));
-
-        int temp = type.getDefTempType();
-        if (nbt.contains("temperature")) temp = nbt.getInt("temperature");
-
-        boolean isWet = type.isWet();
-        if (nbt.contains("isWet")) isWet = nbt.getBoolean("isWet");
+    public static FluidInstance fromNBT(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        Fluid fluid = Fluids.BREWING_FLUID;
+        if (nbt.contains("fluid")) fluid = Registries.FLUID.get(Identifier.of(nbt.getString("fluid")));
 
         int quantity = 1;
         if (nbt.contains("quantity")) quantity = nbt.getInt("quantity");
 
         ArrayList<StatusEffectInstance> effects = new ArrayList<>();
-        if (nbt.contains("effects", NbtElement.LIST_TYPE))
-            ((NbtList) nbt.get("effects")).forEach(nbtElement -> effects.add(StatusEffectInstance.fromNbt((NbtCompound) nbtElement)));
-
-        return new FluidInstance(type, temp, isWet, quantity, new PotionContentsComponent(Optional.empty(), Optional.empty(), effects));
+        if (nbt.contains("effects")) {
+            NbtList list = (NbtList) nbt.get("effects");
+            for (NbtElement nbtElement : list) {
+                effects.add(StatusEffectInstance.fromNbt((NbtCompound) nbtElement));
+            }
+        }
+        return new FluidInstance(fluid, quantity, effects);
     }
 
 
