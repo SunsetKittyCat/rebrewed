@@ -21,6 +21,8 @@ import net.minecraft.util.math.ColorHelper;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.World;
 
+import java.util.Optional;
+
 public class ConcoctionCauldronBlockEntity extends BlockEntity {
     public int color = ColorHelper.Argb.getArgb(0, 0, 255);
     public FluidInstance fluid = new FluidInstance(Fluids.BREWING_FLUID, 1);
@@ -31,10 +33,12 @@ public class ConcoctionCauldronBlockEntity extends BlockEntity {
 
     @Environment(EnvType.CLIENT)
     public static int getColor(BlockRenderView world, BlockPos pos) {
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (!(blockEntity instanceof ConcoctionCauldronBlockEntity)) return -1;
+        Optional<ConcoctionCauldronBlockEntity> blockEntityOptional = world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON);
+        if (blockEntityOptional.isEmpty()) return -1;
 
-        return ((ConcoctionCauldronBlockEntity) blockEntity).color;
+        ConcoctionCauldronBlockEntity blockEntity = blockEntityOptional.get();
+
+        return blockEntity.fluid.getColor();
     }
 
     public static boolean addFluid(World world, BlockPos pos, PotionContentsComponent potionData) {
@@ -97,7 +101,7 @@ public class ConcoctionCauldronBlockEntity extends BlockEntity {
     public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         super.readNbt(nbt, registryLookup);
 
-        this.fluid = FluidInstance.fromNBT((NbtCompound) nbt.get("fluid"));
+        this.fluid = FluidInstance.fromNBT((NbtCompound) nbt.get("fluid"), registryLookup);
 
         markDirty();
     }
