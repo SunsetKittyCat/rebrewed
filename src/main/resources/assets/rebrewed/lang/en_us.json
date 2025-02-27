@@ -1,8 +1,83 @@
 {
   "block.rebrewed.concoction_cauldron": "Concoction Cauldron",
 
-  "item.minecraft.lingering_potion.effect.composite": "Lingering Composite Potion",
   "item.minecraft.potion.effect.composite": "Composite Potion",
-  "item.minecraft.splash_potion.effect.composite": "Splash Composite Potion",
-  "item.minecraft.tipped_arrow.effect.composite": "Arrow of Composite Effects"
+  "item.minecraft.splash_potion.effect.composite": "Composite Splash Potion",
+  "item.minecraft.lingering_potion.effect.composite": "Lingering Composite Potion",
+  "item.minecraft.tipped_arrow.effect.composite": "Arrow of Composite Effects",
+
+  "item.minecraft.potion.effect.decay": "Potion of Decay",
+  "item.minecraft.splash_potion.effect.decay": "Splash Potion of Decay",
+  "item.minecraft.lingering_potion.effect.decay": "Lingering Potion of Decay",
+  "item.minecraft.tipped_arrow.effect.decay": "Arrow of Decay",
+
+  "item.minecraft.potion.effect.withering": "Potion of Withering",
+  "item.minecraft.splash_potion.effect.withering": "Splash Potion of Withering",
+  "item.minecraft.lingering_potion.effect.withering": "Lingering Potion of Withering",
+  "item.minecraft.tipped_arrow.effect.withering": "Arrow of Withering",
+
+  "item.minecraft.potion.effect.flame_coat": "Potion of the Flame Coat",
+  "item.minecraft.splash_potion.effect.flame_coat": "Splash Potion of the Flame Coat",
+  "item.minecraft.lingering_potion.effect.flame_coat": "Lingering Potion of the Flame Coat",
+  "item.minecraft.tipped_arrow.effect.flame_coat": "Arrow of the Flame Coat",
+
+  "item.minecraft.potion.effect.blazing_strength": "Potion of Blazing Strength",
+  "item.minecraft.splash_potion.effect.blazing_strength": "Splash Potion of Blazing Strength",
+  "item.minecraft.lingering_potion.effect.blazing_strength": "Lingering Potion of Blazing Strength",
+  "item.minecraft.tipped_arrow.effect.blazing_strength": "Arrow of Blazing Strength",
+
+  "item.minecraft.potion.effect.nausea": "Potion of Nausea",
+  "item.minecraft.splash_potion.effect.nausea": "Splash Potion of Nausea",
+  "item.minecraft.lingering_potion.effect.nausea": "Lingering Potion of Nausea",
+  "item.minecraft.tipped_arrow.effect.nausea": "Arrow of Nausea",
+
+  "item.minecraft.potion.effect.blind_eye": "Potion of the Blind Eye",
+  "item.minecraft.splash_potion.effect.blind_eye": "Splash Potion of the Blind Eye",
+  "item.minecraft.lingering_potion.effect.blind_eye": "Lingering Potion of the Blind Eye",
+  "item.minecraft.tipped_arrow.effect.blind_eye": "Arrow of the Blind Eye",
+
+  "item.minecraft.potion.effect.sugar_rush": "Potion of Sugar Rush",
+  "item.minecraft.splash_potion.effect.sugar_rush": "Splash Potion of Sugar Rush",
+  "item.minecraft.lingering_potion.effect.sugar_rush": "Lingering Potion of Sugar Rush",
+  "item.minecraft.tipped_arrow.effect.sugar_rush": "Arrow of Sugar Rush",
+
+  "item.minecraft.potion.effect.rabbit": "Potion of the Rabbit",
+  "item.minecraft.splash_potion.effect.rabbit": "Splash Potion of the Rabbit",
+  "item.minecraft.lingering_potion.effect.rabbit": "Lingering Potion of the Rabbit",
+  "item.minecraft.tipped_arrow.effect.rabbit": "Arrow of the Rabbit",
+
+  "item.minecraft.potion.effect.eyesight": "Potion of Eyesight",
+  "item.minecraft.splash_potion.effect.eyesight": "Splash Potion of Eyesight",
+  "item.minecraft.lingering_potion.effect.eyesight": "Lingering Potion of Eyesight",
+  "item.minecraft.tipped_arrow.effect.eyesight": "Arrow of Eyesight",
+
+  "item.minecraft.potion.effect.ink": "Potion of Ink",
+  "item.minecraft.splash_potion.effect.ink": "Splash Potion of Ink",
+  "item.minecraft.lingering_potion.effect.ink": "Lingering Potion of Ink",
+  "item.minecraft.tipped_arrow.effect.ink": "Arrow of Ink",
+
+  "item.minecraft.potion.effect.glowing_ink": "Potion of Glowing Ink",
+  "item.minecraft.splash_potion.effect.glowing_ink": "Splash Potion of Glowing Ink",
+  "item.minecraft.lingering_potion.effect.glowing_ink": "Lingering Potion of Glowing Ink",
+  "item.minecraft.tipped_arrow.effect.glowing_ink": "Arrow of Glowing Ink",
+
+  "item.minecraft.potion.effect.ghost": "Potion of Ghostliness",
+  "item.minecraft.splash_potion.effect.ghost": "Splash Potion of Ghostliness",
+  "item.minecraft.lingering_potion.effect.ghost": "Lingering Potion of Ghostliness",
+  "item.minecraft.tipped_arrow.effect.ghost": "Arrow of Ghostliness",
+
+  "item.minecraft.potion.effect.breezy_footing": "Potion of Breezy Footing",
+  "item.minecraft.splash_potion.effect.breezy_footing": "Splash Potion of Breezy Footing",
+  "item.minecraft.lingering_potion.effect.breezy_footing": "Lingering Potion of Breezy Footing",
+  "item.minecraft.tipped_arrow.effect.breezy_footing": "Arrow of Breezy Footing",
+
+  "item.minecraft.potion.effect.entanglement": "Potion of Entanglement",
+  "item.minecraft.splash_potion.effect.entanglement": "Splash Potion of Entanglement",
+  "item.minecraft.lingering_potion.effect.entanglement": "Lingering Potion of Entanglement",
+  "item.minecraft.tipped_arrow.effect.entanglement": "Arrow of Entanglement",
+
+  "item.minecraft.potion.effect.blinding_faith": "Potion of Blinding Faith",
+  "item.minecraft.splash_potion.effect.blinding_faith": "Splash Potion of Blinding Faith",
+  "item.minecraft.lingering_potion.effect.blinding_faith": "Lingering Potion of Blinding Faith",
+  "item.minecraft.tipped_arrow.effect.blinding_faith": "Arrow of Blinding Faith"
 }
