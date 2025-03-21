@@ -25,7 +25,7 @@ import java.util.Optional;
 
 public class ConcoctionCauldronBlockEntity extends BlockEntity {
     public int color = ColorHelper.Argb.getArgb(0, 0, 255);
-    public FluidInstance fluid = new FluidInstance(Fluids.BREWING_FLUID, 1);
+    public FluidInstance fluid = new FluidInstance(Fluids.BREWING_FLUID);
 
     public ConcoctionCauldronBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityTypes.CONCOCTION_CAULDRON, pos, state);
@@ -41,11 +41,20 @@ public class ConcoctionCauldronBlockEntity extends BlockEntity {
         return blockEntity.fluid.getColor();
     }
 
+    public static boolean createFluid(World world, BlockPos pos, PotionContentsComponent potionData) {
+        if(world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON).isEmpty()) return false;
+        ConcoctionCauldronBlockEntity bE = world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON).get();
+        bE.fluid.setPotion(potionData);
+        bE.color = bE.fluid.getColor();
+        bE.markDirty();
+        return true;
+    }
+
     public static boolean addFluid(World world, BlockPos pos, PotionContentsComponent potionData) {
         if(world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON).isEmpty()) return false;
         ConcoctionCauldronBlockEntity bE = world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON).get();
-        if(!bE.fluid.modifyLevel(1)) return false;
-        bE.fluid.addPotion(potionData);
+        if(!modifyFluidLevel(world, pos, 1)) return false;
+        bE.fluid.addPotion(potionData, 1.0/getFluidLevel(world, pos));
         bE.color = bE.fluid.getColor();
         bE.markDirty();
         return true;
@@ -55,9 +64,8 @@ public class ConcoctionCauldronBlockEntity extends BlockEntity {
     public static PotionContentsComponent removeFluid(World world, BlockPos pos) {
         if(world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON).isEmpty()) return new PotionContentsComponent(Potions.WATER);
         ConcoctionCauldronBlockEntity bE = world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON).get();
-        PotionContentsComponent potionContentsComponent = bE.fluid.removePotion();
-        bE.fluid.modifyLevel(-1);
-        if (bE.fluid.getQuantity() <= 0) {
+        PotionContentsComponent potionContentsComponent = bE.fluid.removePotion((double) 1 / getFluidLevel(world, pos));
+        if (!modifyFluidLevel(world, pos, -1)) {
             world.setBlockState(pos, Blocks.CAULDRON.getDefaultState());
         }
         bE.markDirty();
@@ -65,8 +73,16 @@ public class ConcoctionCauldronBlockEntity extends BlockEntity {
     }
 
     public static int getFluidLevel(World world, BlockPos pos) {
-        if(world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON).isEmpty()) return 0;
-        return world.getBlockEntity(pos, BlockEntityTypes.CONCOCTION_CAULDRON).get().fluid.getQuantity();
+        if(!world.getBlockState(pos).isOf(net.afternooncats.rebrewed.block.Blocks.CONCOCTION_CAULDRON)) return 0;
+        return world.getBlockState(pos).get(ConcoctionCauldronBlock.LEVEL);
+    }
+    public static boolean setFluidLevel(World world, BlockPos pos, int level) {
+        if (!world.getBlockState(pos).isOf(net.afternooncats.rebrewed.block.Blocks.CONCOCTION_CAULDRON)) return false;
+        if (level < ConcoctionCauldronBlock.MIN_LEVEL || level > ConcoctionCauldronBlock.MAX_LEVEL) return false;
+        return world.setBlockState(pos, world.getBlockState(pos).with(ConcoctionCauldronBlock.LEVEL, level));
+    }
+    public static boolean modifyFluidLevel(World world, BlockPos pos, int diff) {
+        return setFluidLevel(world, pos, getFluidLevel(world, pos) + diff);
     }
 
     @Override

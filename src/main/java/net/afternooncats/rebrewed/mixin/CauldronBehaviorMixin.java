@@ -1,5 +1,6 @@
 package net.afternooncats.rebrewed.mixin;
 
+import net.afternooncats.rebrewed.Rebrewed;
 import net.afternooncats.rebrewed.block.Blocks;
 import net.afternooncats.rebrewed.block.ConcoctionCauldronBlock;
 import net.afternooncats.rebrewed.block.ConcoctionCauldronBlockEntity;
@@ -36,7 +37,7 @@ public interface CauldronBehaviorMixin {
                 if (!world.isClient) {
                     //Add the fluid and update the level blockstate
                     boolean didAdd = ConcoctionCauldronBlockEntity.addFluid(world, pos, potionContentsComponent);
-                    world.setBlockState(pos, state.with(ConcoctionCauldronBlock.LEVEL, ConcoctionCauldronBlockEntity.getFluidLevel(world, pos)));
+                    //world.setBlockState(pos, state.with(ConcoctionCauldronBlock.LEVEL, ConcoctionCauldronBlockEntity.getFluidLevel(world, pos)));
 
                     //if it didnt add, dont continue
                     if (!didAdd) return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
@@ -97,8 +98,7 @@ public interface CauldronBehaviorMixin {
             if (potionContentsComponent != null && blockEntity instanceof ConcoctionCauldronBlockEntity) {
                 if (!world.isClient) {
                     //Add the fluid and update the level blockstate
-                    boolean didAdd = ConcoctionCauldronBlockEntity.addFluid(world, pos, potionContentsComponent);
-                    world.setBlockState(pos, state.with(ConcoctionCauldronBlock.LEVEL, ConcoctionCauldronBlockEntity.getFluidLevel(world, pos)));
+                    boolean didAdd = ConcoctionCauldronBlockEntity.createFluid(world, pos, potionContentsComponent);
 
                     //if it didnt add, dont continue
                     if (!didAdd) return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
